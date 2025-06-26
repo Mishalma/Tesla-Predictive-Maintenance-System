@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tesla Predictive Maintenance - Realtime Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 0; }
+        .container { max-width: 900px; margin: 40px auto; background: #fff; padding: 2em; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; }
+        .status { text-align: center; font-size: 1.5em; margin: 1em 0; padding: 0.5em; border-radius: 6px; }
+        .ok { background: #e0ffe0; color: #2e7d32; }
+        .fail { background: #ffe0e0; color: #c62828; }
+        .charts { display: flex; flex-wrap: wrap; gap: 2em; justify-content: center; }
+        .chart-container { width: 400px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚗 Tesla Predictive Maintenance - Realtime Dashboard</h1>
+        <div id="status" class="status">Waiting for predictions...</div>
+        <div class="charts">
+            <div class="chart-container">
+                <canvas id="batteryChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <canvas id="motorChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <canvas id="brakeChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <canvas id="tireChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <script>
+        const maxPoints = 20;
+        let timeLabels = [];
+        let batteryData = [];
+        let motorData = [];
+        let brakeData = [];
+        let tireData = [];
+
+        const batteryChart = new Chart(document.getElementById('batteryChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: timeLabels,
+                datasets: [{
+                    label: 'Battery Voltage (V)',
+                    data: batteryData,
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0,123,255,0.1)',
+                    fill: true,
+                }]
+            },
+            options: { scales: { x: { display: true }, y: { beginAtZero: false } } }
+        });
+        const motorChart = new Chart(document.getElementById('motorChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: timeLabels,
+                datasets: [{
+                    label: 'Motor Temperature (°C)',
+                    data: motorData,
+                    borderColor: '#ff9800',
+                    backgroundColor: 'rgba(255,152,0,0.1)',
+                    fill: true,
+                }]
+            },
+            options: { scales: { x: { display: true }, y: { beginAtZero: false } } }
+        });
+        const brakeChart = new Chart(document.getElementById('brakeChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: timeLabels,
+                datasets: [{
+                    label: 'Brake Pressure (psi)',
+                    data: brakeData,
+                    borderColor: '#4caf50',
+                    backgroundColor: 'rgba(76,175,80,0.1)',
+                    fill: true,
+                }]
+            },
+            options: { scales: { x: { display: true }, y: { beginAtZero: false } } }
+        });
+        const tireChart = new Chart(document.getElementById('tireChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: timeLabels,
+                datasets: [{
+                    label: 'Tire Pressure (psi)',
+                    data: tireData,
+                    borderColor: '#e91e63',
+                    backgroundColor: 'rgba(233,30,99,0.1)',
+                    fill: true,
+                }]
+            },
+            options: { scales: { x: { display: true }, y: { beginAtZero: false } } }
+        });
+
+        async function fetchAndUpdate() {
+            try {
+                const response = await fetch('/data');
+                const history = await response.json();
+                if (history.length === 0) {
+                    updateDashboard([], 'Waiting for predictions...');
+                    return;
+                }
+                // Prepare data
+                timeLabels = history.map(e => e.timestamp);
+                batteryData = history.map(e => e.battery_voltage);
+                motorData = history.map(e => e.motor_temperature);
+                brakeData = history.map(e => e.brake_pressure);
+                tireData = history.map(e => e.tire_pressure);
+                const lastStatus = history[history.length - 1].status;
+                updateDashboard(history, lastStatus);
+            } catch (err) {
+                updateDashboard([], 'Error connecting to backend.');
+            }
+        }
+
+        function updateDashboard(history, status) {
+            batteryChart.data.labels = timeLabels;
+            batteryChart.data.datasets[0].data = batteryData;
+            batteryChart.update();
+            motorChart.data.labels = timeLabels;
+            motorChart.data.datasets[0].data = motorData;
+            motorChart.update();
+            brakeChart.data.labels = timeLabels;
+            brakeChart.data.datasets[0].data = brakeData;
+            brakeChart.update();
+            tireChart.data.labels = timeLabels;
+            tireChart.data.datasets[0].data = tireData;
+            tireChart.update();
+            const statusDiv = document.getElementById('status');
+            if (status === 'OK') {
+                statusDiv.textContent = 'Vehicle Status: ✅ OK';
+                statusDiv.className = 'status ok';
+            } else if (status === 'FAIL') {
+                statusDiv.textContent = 'Vehicle Status: 🚨 FAIL';
+                statusDiv.className = 'status fail';
+            } else {
+                statusDiv.textContent = status;
+                statusDiv.className = 'status';
+            }
+        }
+
+        setInterval(fetchAndUpdate, 2000);
+        fetchAndUpdate();
+    </script>
+</body>
+</html> 
