@@ -1,0 +1,6 @@
+flask
+joblib
+pandas
+scikit-learn
+
+tensorflow==2.18.0

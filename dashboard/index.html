@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tesla Predictive Maintenance Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #1C2526;
+            margin: 0;
+            padding: 0;
+            color: #FFFFFF;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80"%3E%3Cpath fill="%23E0E0E0" fill-opacity="0.1" d="M0 0h80v80H0z"/%3E%3Cpath fill="%23FFFFFF" fill-opacity="0.1" d="M40 0L0 40h40v40h40V40H40z"/%3E%3C/svg%3E');
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2.5em;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #FFFFFF;
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 0.5em;
+        }
+        h1::before {
+            content: '🚗 ';
+            font-size: 1.2em;
+        }
+        form {
+            display: grid;
+            gap: 1.5em;
+        }
+        label {
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+            color: #E0E0E0;
+            font-size: 1em;
+            font-weight: 500;
+        }
+        label svg {
+            width: 20px;
+            height: 20px;
+            fill: #CC0000;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 0.8em;
+            border: 1px solid #4A4A4A;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #FFFFFF;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #CC0000;
+            box-shadow: 0 0 8px rgba(204, 0, 0, 0.3);
+        }
+        button {
+            padding: 0.8em;
+            background: #CC0000;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+        button:hover {
+            background: #A30000;
+            transform: scale(1.02);
+        }
+        .result {
+            margin-top: 2em;
+            padding: 1em;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .result.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .ok {
+            background: rgba(46, 125, 50, 0.2);
+            color: #2E7D32;
+            border: 1px solid #2E7D32;
+        }
+        .fail {
+            background: rgba(198, 40, 40, 0.2);
+            color: #C62828;
+            border: 1px solid #C62828;
+        }
+        @media (max-width: 600px) {
+            .container {
+                margin: 20px;
+                padding: 1.5em;
+            }
+            h1 {
+                font-size: 1.5em;
+            }
+            button {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tesla Predictive Maintenance</h1>
+        <form id="sensorForm">
+            <label>
+                <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 14H6v-2h6v2zm6-4H6v-2h12v2zm0-4H6V8h12v2z"/></svg>
+                Battery Voltage (V)
+                <input type="number" step="0.01" name="battery_voltage" required aria-label="Battery Voltage in Volts">
+            </label>
+            <label>
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92c-.5.51-.86.97-1.04 1.69-.08.32-.13.68-.13 1.14h-2v-.5c0-.83.36-1.57.92-2.08l1.09-1.1c.31-.31.51-.74.51-1.22 0-.95-.77-1.72-1.72-1.72s-1.72.77-1.72 1.72H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .73-.2 1.41-.56 2z"/></svg>
+                Motor Temperature (°C)
+                <input type="number" step="0.01" name="motor_temperature" required aria-label="Motor Temperature in Celsius">
+            </label>
+            <label>
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+                Brake Pressure (psi)
+                <input type="number" step="0.01" name="brake_pressure" required aria-label="Brake Pressure in PSI">
+            </label>
+            <label>
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                Tire Pressure (psi)
+                <input type="number" step="0.01" name="tire_pressure" required aria-label="Tire Pressure in PSI">
+            </label>
+            <button type="submit">Predict</button>
+        </form>
+        <div id="result" class="result" style="display:none;"></div>
+    </div>
+    <script>
+        document.getElementById('sensorForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const form = e.target;
+            const data = {
+                battery_voltage: parseFloat(form.battery_voltage.value),
+                motor_temperature: parseFloat(form.motor_temperature.value),
+                brake_pressure: parseFloat(form.brake_pressure.value),
+                tire_pressure: parseFloat(form.tire_pressure.value)
+            };
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'none';
+            resultDiv.classList.remove('show', 'ok', 'fail');
+            try {
+                const response = await fetch('http://127.0.0.1:8000/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    resultDiv.textContent = `Vehicle Status: ${result.status}`;
+                    resultDiv.className = 'result ' + (result.status === 'OK' ? 'ok' : 'fail') + ' show';
+                } else {
+                    resultDiv.textContent = result.error || 'Prediction failed.';
+                    resultDiv.className = 'result fail show';
+                }
+            } catch (err) {
+                resultDiv.textContent = 'Error connecting to backend.';
+                resultDiv.className = 'result fail show';
+            }
+            resultDiv.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
