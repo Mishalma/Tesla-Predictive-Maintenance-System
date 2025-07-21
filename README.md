@@ -11,7 +11,7 @@ This project simulates real-time EV sensor data and predicts potential system fa
 - Real-time sensor data simulation
 - Predictive maintenance using machine learning (Random Forest Classifier)
 - FastAPI backend for model inference
-- Streamlit dashboard for live monitoring
+- dashboard for live monitoring
 - Real-time data visualization (battery voltage, motor temperature)
 - Data logging for historical analysis
 
@@ -19,8 +19,8 @@ This project simulates real-time EV sensor data and predicts potential system fa
 
 ## 🛠️ Tech Stack
 
-- **Backend**: FastAPI
-- **Frontend**: Streamlit
+- **Backend**: Flask
+- **Frontend**: HTML,CSS
 - **Machine Learning**: Scikit-Learn (Random Forest)
 - **Data Visualization**: Plotly, Matplotlib
 - **Programming Language**: Python 3.11
